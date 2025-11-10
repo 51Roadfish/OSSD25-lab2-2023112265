@@ -41,44 +41,45 @@ import java.util.Arrays;
  * 1 <= target <= 106
  *
  */
+
 class Solution5 {
     static final int P = 1000000007;
     static final int MAX_N = 100005;
 
     int[] f = new int[MAX_N];
-
     public int numSubseq(int[] nums, int target) {
         pretreatment();
 
         Arrays.sort(nums);
 
         int ans = 0;
-        for (int i = 0; i < nums.length-1 && nums[i] * 2 <= target; ++i) {
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] * 2 > target) {
+                break;
+            }
             int maxValue = target - nums[i];
-            int pos = binarySearch(nums, maxValue) - 1;
-            int contribute = (pos >= i) ? f[pos - i] : 0;
-            ans = (ans + contribute) / P;
+            int pos = binarySearch(nums, maxValue);
+            if (pos > i) {
+                int contribute = f[pos - i - 1];
+                ans = (ans + contribute) % P;
+            }
         }
 
         return ans;
     }
 
     public void pretreatment() {
-        f[0] = 0;
+        f[0] = 1;
         for (int i = 1; i < MAX_N; ++i) {
-            f[i] = (f[i - 1] << 1) % P;
+            f[i] = (f[i - 1] * 2) % P;
         }
     }
 
     public int binarySearch(int[] nums, int target) {
         int low = 0, high = nums.length;
-        while (low <= high) {
-            int mid = (high - low) / 2 + low;
-            if (mid == nums.length) {
-                return mid;
-            }
-            int num = nums[mid];
-            if (num <= target) {
+        while (low < high) {
+            int mid = low + (high - low) / 2;
+            if (nums[mid] <= target) {
                 low = mid + 1;
             } else {
                 high = mid;
